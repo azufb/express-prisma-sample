@@ -3,6 +3,9 @@ import { ApolloServer, BaseContext } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import cors from 'cors';
 import bodyParser from 'body-parser';
+import { PrismaClient } from '@prisma/client';
+
+const prisma: PrismaClient = new PrismaClient();
 
 const app = express();
 const port: number = 8000;
@@ -14,18 +17,33 @@ const typeDefs = `
     title: String
   }
 
-  type TodoInput {
+  type User {
+    id: Int
+    email: String
+    name: String
+    password: String
+    tasks: [Task]
+  }
+
+  type Task {
+    id: Int
     title: String
+    deadLine: String
+    user: User
+    userId: Int
   }
 
   type Query {
     hello: String
     goodbye: String
     todos: [Todo]
+    users: [User]
   }
 
   type Mutation {
     addTodo(todo: String): [Todo]
+    addUser(name: String, email: String, password: String): User
+    deleteUser(email: String): User
   }
 `;
 
@@ -49,6 +67,7 @@ const resolvers = {
     goodbye: () => 'バイバイ！',
     // 定義したtodosを取得する
     todos: () => todos,
+    users: () => prisma.user.findMany(),
   },
   Mutation: {
     // todosにデータを追加
@@ -59,6 +78,22 @@ const resolvers = {
       };
       todos.push(newData);
       return todos;
+    },
+    addUser: (parent: any, args: any) => {
+      return prisma.user.create({
+        data: {
+          name: args.name,
+          email: args.email,
+          password: args.password,
+        },
+      });
+    },
+    deleteUser: (parent: any, args: any) => {
+      return prisma.user.delete({
+        where: {
+          email: args.email,
+        },
+      });
     },
   },
 };
