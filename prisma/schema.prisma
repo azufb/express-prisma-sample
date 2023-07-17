@@ -13,5 +13,5 @@ datasource db {
 model task {
   id       Int    @id @default(autoincrement())
   title    String
-  deadLine String
+  deadline String
 }

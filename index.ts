@@ -15,12 +15,18 @@ const typeDefs = `
   type Task {
     id: Int
     title: String
-    deadLine: String
+    deadline: String
   }
 
   type Query {
     hello: String
     goodbye: String
+    getTasks: [Task]
+  }
+
+  type Mutation {
+    addTask(title: String, deadline: String): Task
+    deleteTask(id: Int): Task
   }
 `;
 
@@ -31,6 +37,28 @@ const resolvers = {
     hello: () => 'こんにちは、あるいはこんばんは、エージェント黄昏くん。',
     // 「バイバイ！」と返してもらう
     goodbye: () => 'バイバイ！',
+    // タスク全部取得
+    getTasks: () => prisma.task.findMany(),
+  },
+  Mutation: {
+    // タスク登録
+    addTask: (parent: any, args: any) => {
+      return prisma.task.create({
+        data: {
+          title: args.title,
+          deadline: args.deadline,
+        },
+      });
+    },
+
+    // タスク削除
+    deleteTask: (parent: any, args: any) => {
+      return prisma.task.delete({
+        where: {
+          id: args.id,
+        },
+      });
+    },
   },
 };
 
