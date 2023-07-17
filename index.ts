@@ -16,15 +16,6 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(cors());
 
-type ResultObjType = {
-  code: number;
-  message: string;
-  user: {
-    id: undefined | number;
-    name: string;
-  };
-};
-
 // 型定義（スキーマ定義）
 const typeDefs = `
   type Task {
