@@ -16,27 +16,21 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(cors());
 
+type ResultObjType = {
+  code: number;
+  message: string;
+  user: {
+    id: undefined | number;
+    name: string;
+  };
+};
+
 // 型定義（スキーマ定義）
 const typeDefs = `
   type Task {
     id: Int
     title: String
     deadline: String
-  }
-
-  type User {
-    id: Int
-    name: String
-  }
-
-  type SigninResult {
-    code: Int
-    message: String
-  }
-
-  type SignoutResult {
-    code: Int
-    targetUser: User
   }
 
   type Query {
@@ -48,10 +42,6 @@ const typeDefs = `
   type Mutation {
     addTask(title: String, deadline: String): Task
     deleteTask(id: Int): Task
-    searchSameEmailUser(email: String): [User]
-    signup(name: String, email: String, password: String): User
-    signin(email: String, password: String): SigninResult
-    signout(id: Int, email: String): SignoutResult
   }
 `;
 
@@ -83,135 +73,6 @@ const resolvers = {
           id: args.id,
         },
       });
-    },
-
-    // 同じメールアドレスのユーザがいないか検索
-    searchSameEmailUser: (parent: any, args: any) => {
-      return prisma.user.findMany({
-        where: {
-          email: args.email,
-        },
-      });
-    },
-
-    // サインアップ
-    signup: (parent: any, args: any) => {
-      // ソルト生成
-      const salt: string = crypto.randomBytes(16).toString('hex');
-      // パスワードとソルトを合体
-      const saltedPassword: string = args.password + salt;
-      // パスワード+ソルトをハッシュ化
-      const hashedPassword: string = crypto
-        .createHash('sha256')
-        .update(saltedPassword)
-        .digest('hex');
-
-      return prisma.user.create({
-        data: {
-          name: args.name,
-          email: args.email,
-          password: hashedPassword,
-          salt: salt,
-          isSignedin: true,
-        },
-      });
-    },
-
-    // サインイン
-    signin: async (parent: any, args: any) => {
-      let resultObj = {
-        code: 0,
-        message: '',
-      };
-      const uniqueUser = await prisma.user.findUnique({
-        where: {
-          email: args.email,
-        },
-        select: {
-          email: true,
-          password: true,
-          salt: true,
-        },
-      });
-
-      if (uniqueUser) {
-        const password = uniqueUser.password;
-        const salt = uniqueUser.salt;
-
-        // 入力されたパスワード
-        const inputPassword: string = args.password;
-        // 入力されたパスワードとソルトを合体
-        const saltedPassword: string = inputPassword + salt;
-        // パスワード+ソルトをハッシュ化
-        const hashedPassword = crypto
-          .createHash('sha256')
-          .update(saltedPassword)
-          .digest('hex');
-
-        if (hashedPassword === password) {
-          // isSignedinをtrueにする
-          await prisma.user.update({
-            where: {
-              email: uniqueUser.email,
-            },
-            data: {
-              isSignedin: true,
-            },
-          });
-
-          resultObj = {
-            code: 200,
-            message: 'Success',
-          };
-        } else {
-          console.log('error');
-          resultObj = {
-            code: 401,
-            message: 'Failed',
-          };
-        }
-      } else {
-        resultObj = {
-          code: 404,
-          message: 'user not found',
-        };
-      }
-      return resultObj;
-    },
-
-    // サインアウト
-    signout: async (parent: any, args: any) => {
-      const uniqueUser = await prisma.user.findUnique({
-        where: {
-          email: args.email,
-        },
-      });
-
-      if (uniqueUser) {
-        await prisma.user.update({
-          where: {
-            id: uniqueUser.id,
-            email: uniqueUser.email,
-          },
-          data: {
-            isSignedin: false,
-          },
-        });
-
-        const resultObj = {
-          code: 200,
-          targetUser: uniqueUser,
-        };
-
-        return resultObj;
-      } else {
-        const resultObj = {
-          code: 400,
-          targetUser: uniqueUser,
-        };
-
-        return resultObj;
-      }
     },
   },
 };
