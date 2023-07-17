@@ -36,7 +36,7 @@ const typeDefs = `
 
   type SignoutResult {
     code: Int
-    targetUser: User?
+    targetUser: User
   }
 
   type Query {
