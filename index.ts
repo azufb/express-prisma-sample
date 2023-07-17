@@ -4,7 +4,6 @@ import { expressMiddleware } from '@apollo/server/express4';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import { PrismaClient } from '@prisma/client';
-import crypto from 'crypto';
 
 const prisma: PrismaClient = new PrismaClient();
 
