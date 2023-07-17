@@ -42,6 +42,7 @@ const typeDefs = `
   type Mutation {
     addTask(title: String, deadline: String): Task
     deleteTask(id: Int): Task
+    updateTask(id: Int, title: String, deadline: String): Task
   }
 `;
 
@@ -71,6 +72,20 @@ const resolvers = {
       return prisma.task.delete({
         where: {
           id: args.id,
+        },
+      });
+    },
+
+    // タスク更新
+    updateTask: (parent: any, args: any) => {
+      return prisma.task.update({
+        where: {
+          id: args.id,
+        },
+        data: {
+          id: args.id,
+          title: args.title,
+          deadline: args.deadline,
         },
       });
     },
