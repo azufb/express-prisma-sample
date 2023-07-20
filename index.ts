@@ -37,7 +37,7 @@ const typeDefs = `
     hello(name: String): String
     helloWorld: String
     greeting: String
-    goodbye: String
+    goodbye(name: String): String
     getTasks: [Task]
   }
 
@@ -60,7 +60,9 @@ const resolvers = {
       const max: number = greetings.length;
       return greetings[getRandomValue(max)];
     },
-    goodbye: () => 'バイバイ！',
+    goodbye: (parent: any, args: any) => {
+      return `バイバイ、${args.name}!`;
+    },
     // タスク全部取得
     getTasks: () => prisma.task.findMany(),
   },
