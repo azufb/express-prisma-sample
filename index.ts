@@ -10,10 +10,20 @@ const prisma: PrismaClient = new PrismaClient();
 const app = express();
 const port: number = 8000;
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+const helloWorld: string = 'Hello World!';
 
-app.use(cors());
+const greetings: string[] = [
+  'Hello!',
+  '¡Hola!',
+  'こんにちは!',
+  '你好!',
+  'bonjour!',
+];
+
+// ランダムな数字を返す
+const getRandomValue = (max: number): number => {
+  return Math.floor(Math.random() * max);
+};
 
 // 型定義（スキーマ定義）
 const typeDefs = `
@@ -24,7 +34,9 @@ const typeDefs = `
   }
 
   type Query {
-    hello: String
+    hello(name: String): String
+    helloWorld: String
+    greeting: String
     goodbye: String
     getTasks: [Task]
   }
@@ -39,9 +51,15 @@ const typeDefs = `
 // GraphQLにどういう処理をするか指示する
 const resolvers = {
   Query: {
-    // 「こんにちは、あるいはこんばんは、エージェント黄昏くん。」と返してもらう
-    hello: () => 'こんにちは、あるいはこんばんは、エージェント黄昏くん。',
-    // 「バイバイ！」と返してもらう
+    hello: (parent: any, args: any) => {
+      return `Hello, ${args.name}!`;
+    },
+    helloWorld: () => helloWorld,
+    // ランダムであいさつを返してもらう。
+    greeting: () => {
+      const max: number = greetings.length;
+      return greetings[getRandomValue(max)];
+    },
     goodbye: () => 'バイバイ！',
     // タスク全部取得
     getTasks: () => prisma.task.findMany(),
@@ -98,10 +116,6 @@ app.use(
   bodyParser.json(),
   expressMiddleware(server)
 );
-
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
 
 // サーバ起動
 await new Promise<void>((resolve) => app.listen({ port: port }, resolve));
