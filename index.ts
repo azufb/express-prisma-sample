@@ -8,7 +8,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma: PrismaClient = new PrismaClient();
 
 const app = express();
-const port: number = 8000;
+const port: number = 8001;
 
 const helloWorld: string = 'Hello World!';
 
@@ -58,7 +58,7 @@ const resolvers = {
     // ランダムであいさつを返してもらう。
     greeting: () => {
       const max: number = greetings.length;
-      return greetings[getRandomValue(max)];
+      return greetings[getRandomValue(max) - 1];
     },
     goodbye: (parent: any, args: any) => {
       return `バイバイ、${args.name}!`;
