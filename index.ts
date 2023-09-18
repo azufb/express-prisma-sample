@@ -58,7 +58,8 @@ const resolvers = {
     // ランダムであいさつを返してもらう。
     greeting: () => {
       const max: number = greetings.length;
-      return greetings[getRandomValue(max) - 1];
+      console.log(getRandomValue(max));
+      return greetings[getRandomValue(max)];
     },
     goodbye: (parent: any, args: any) => {
       return `バイバイ、${args.name}!`;
