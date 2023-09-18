@@ -51,7 +51,7 @@ const typeDefs = `
 // GraphQLにどういう処理をするか指示する
 const resolvers = {
   Query: {
-    hello: (parent: any, args: any) => {
+    hello: (parent: any, args: { name: string }) => {
       return `Hello, ${args.name}!`;
     },
     helloWorld: () => helloWorld,
@@ -69,7 +69,7 @@ const resolvers = {
   },
   Mutation: {
     // タスク登録
-    addTask: (parent: any, args: any) => {
+    addTask: (parent: any, args: { title: string; deadline: string }) => {
       return prisma.task.create({
         data: {
           title: args.title,
@@ -79,7 +79,7 @@ const resolvers = {
     },
 
     // タスク削除
-    deleteTask: (parent: any, args: any) => {
+    deleteTask: (parent: any, args: { id: number }) => {
       return prisma.task.delete({
         where: {
           id: args.id,
@@ -88,7 +88,10 @@ const resolvers = {
     },
 
     // タスク更新
-    updateTask: (parent: any, args: any) => {
+    updateTask: (
+      parent: any,
+      args: { id: number; title: string; deadline: string }
+    ) => {
       return prisma.task.update({
         where: {
           id: args.id,
