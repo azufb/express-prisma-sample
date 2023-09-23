@@ -42,9 +42,9 @@ const typeDefs = `
   }
 
   type Mutation {
-    addTask(title: String, deadline: String): Task
-    deleteTask(id: Int): Task
-    updateTask(id: Int, title: String, deadline: String): Task
+    addTask(title: String!, deadline: String): Task
+    deleteTask(id: Int!): Task
+    updateTask(id: Int!, title: String!, deadline: String): Task
   }
 `;
 
