@@ -28,8 +28,8 @@ const getRandomValue = (max: number): number => {
 // 型定義（スキーマ定義）
 const typeDefs = `
   type Task {
-    id: Int
-    title: String
+    id: Int!
+    title: String!
     deadline: String
   }
 
